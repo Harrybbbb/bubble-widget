@@ -12,10 +12,25 @@ npm install bubble-widget
 
 ## Usage
 
-### Basic Usage
+### CDN Usage
 
 ```html
-<!-- Import the component -->
+<!-- Import from unpkg CDN -->
+<script src="https://unpkg.com/bubble-widget"></script>
+
+<!-- Use the component -->
+<bubble-widget position="bottom-right" theme="light" icon="💬">
+  <div slot="content">
+    <h3>Hello, World!</h3>
+    <p>This is a customizable bubble widget.</p>
+  </div>
+</bubble-widget>
+```
+
+### NPM Usage
+
+```html
+<!-- Import after npm install -->
 <script src="node_modules/bubble-widget/bubble-widget.js"></script>
 
 <!-- Use the component -->
@@ -35,6 +50,58 @@ import "bubble-widget";
 
 // Or if you need to access the class definition
 import BubbleWidget from "bubble-widget";
+```
+
+### React Usage
+
+```jsx
+import React from "react";
+import BubbleWidget from "bubble-widget/react-wrapper";
+
+function App() {
+  return (
+    <BubbleWidget
+      position="bottom-right"
+      theme="light"
+      icon="💬"
+      onToggle={(isOpen) => console.log("Widget is open:", isOpen)}
+    >
+      <h3>Hello, World!</h3>
+      <p>This is a customizable bubble widget in React.</p>
+    </BubbleWidget>
+  );
+}
+```
+
+### Vue Usage
+
+```vue
+<template>
+  <BubbleWidget
+    position="bottom-right"
+    theme="light"
+    icon="💬"
+    @toggle="handleToggle"
+  >
+    <h3>Hello, World!</h3>
+    <p>This is a customizable bubble widget in Vue.</p>
+  </BubbleWidget>
+</template>
+
+<script>
+import BubbleWidget from "bubble-widget/vue-wrapper";
+
+export default {
+  components: {
+    BubbleWidget,
+  },
+  methods: {
+    handleToggle(isOpen) {
+      console.log("Widget is open:", isOpen);
+    },
+  },
+};
+</script>
 ```
 
 ## Configuration Options
