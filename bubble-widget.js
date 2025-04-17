@@ -126,7 +126,6 @@ class BubbleWidget extends HTMLElement {
   }
 
   loadStylesheet() {
-    // Instead of loading an external CSS file, use the embedded styles
     const styleElement = document.createElement("style");
     styleElement.textContent = BubbleWidget.baseStyles;
     this.shadowRoot.appendChild(styleElement);
@@ -180,7 +179,6 @@ class BubbleWidget extends HTMLElement {
   }
 
   render() {
-    // Create container div if not already present
     if (!this.shadowRoot.querySelector(".bubble-container")) {
       const template = document.createElement("div");
       template.innerHTML = `
@@ -195,7 +193,6 @@ class BubbleWidget extends HTMLElement {
       `;
       this.shadowRoot.appendChild(template.firstElementChild);
     } else {
-      // Update existing content
       const iconSlot = this.shadowRoot.querySelector('slot[name="icon"]');
       if (iconSlot) {
         iconSlot.innerHTML = this.icon;
@@ -262,7 +259,6 @@ class BubbleWidget extends HTMLElement {
       }
     `;
 
-    // Remove old dynamic styles if exist
     const oldStyle = this.shadowRoot.querySelector(
       "style[data-dynamic='true']"
     );
@@ -270,7 +266,6 @@ class BubbleWidget extends HTMLElement {
       this.shadowRoot.removeChild(oldStyle);
     }
 
-    // Mark this style as dynamic so we can find it later
     styleElement.setAttribute("data-dynamic", "true");
     this.shadowRoot.appendChild(styleElement);
   }
@@ -416,7 +411,6 @@ class BubbleWidget extends HTMLElement {
 
 customElements.define("bubble-widget", BubbleWidget);
 
-// For module usage
 if (typeof module !== "undefined" && module.exports) {
   module.exports = BubbleWidget;
 }
