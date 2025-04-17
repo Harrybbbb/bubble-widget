@@ -27,21 +27,6 @@ npm install bubble-widget
 </bubble-widget>
 ```
 
-### NPM Usage
-
-```html
-<!-- Import after npm install -->
-<script src="node_modules/bubble-widget/bubble-widget.js"></script>
-
-<!-- Use the component -->
-<bubble-widget position="bottom-right" theme="light" icon="💬">
-  <div slot="content">
-    <h3>Hello, World!</h3>
-    <p>This is a customizable bubble widget.</p>
-  </div>
-</bubble-widget>
-```
-
 ### Import in JavaScript
 
 ```js
