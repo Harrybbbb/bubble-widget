@@ -2,6 +2,8 @@
 
 A lightweight, customizable bubble widget component for web applications.
 
+![Bubble Widget](https://i.ibb.co/N6dQ764V/Screenshot-2025-04-18-at-12-12-01-AM.png)
+
 ## Installation
 
 ```bash
