@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Bubble Widget Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 50px;
+        color: #333;
+      }
+      .content-box {
+        background-color: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+      h3 {
+        margin-top: 0;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <bubble-widget
+      position="bottom-right"
+      theme="light"
+      button-size="60px"
+      button-radius="100%"
+      tooltip-width="300px"
+      spacing="15px"
+      button-color="#6c5ce7"
+      tooltip-color="#ffffff"
+      text-color="#333"
+      shadow-color="rgba(108,92,231,0.3)"
+      animation="scale"
+      icon="💬"
+    >
+      <div slot="content">
+        <div class="content-box">
+          <h3>Bottom Right Bubble</h3>
+          <p>This is a speech bubble with a pointer at the top-left</p>
+        </div>
+      </div>
+    </bubble-widget>
+
+    <bubble-widget
+      position="bottom"
+      theme="light"
+      button-size="60px"
+      button-radius="100%"
+      tooltip-width="300px"
+      spacing="15px"
+      button-color="#00b894"
+      tooltip-color="#ffffff"
+      text-color="#333"
+      shadow-color="rgba(0,184,148,0.3)"
+      animation="scale"
+      icon="💬"
+    >
+      <div slot="content">
+        <div class="content-box">
+          <h3>Bottom Bubble</h3>
+          <p>This is a speech bubble with a pointer at the top-center</p>
+        </div>
+      </div>
+    </bubble-widget>
+
+    <bubble-widget
+      position="top-right"
+      theme="light"
+      button-size="60px"
+      button-radius="100%"
+      tooltip-width="300px"
+      spacing="15px"
+      button-color="#e84393"
+      tooltip-color="#ffffff"
+      text-color="#333"
+      shadow-color="rgba(232,67,147,0.3)"
+      animation="scale"
+      icon="💬"
+    >
+      <div slot="content">
+        <div class="content-box">
+          <h3>Top Right Bubble</h3>
+          <p>This is a speech bubble with a pointer at the bottom-left</p>
+        </div>
+      </div>
+    </bubble-widget>
+
+    <bubble-widget
+      position="top"
+      theme="light"
+      button-size="60px"
+      button-radius="100%"
+      tooltip-width="300px"
+      spacing="15px"
+      button-color="#0984e3"
+      tooltip-color="#ffffff"
+      text-color="#333"
+      shadow-color="rgba(9,132,227,0.3)"
+      animation="scale"
+      icon="💬"
+      src="./iframe-content.html"
+      iframe-height="200px"
+    >
+    </bubble-widget>
+
+    <script src="bubble-widget.js"></script>
+  </body>
+</html>

@@ -1,0 +1,53 @@
+/* Bubble Widget Base Styles */
+
+/* Host element styles */
+:host {
+  position: fixed;
+  z-index: 1000;
+}
+
+/* Container styles */
+.bubble-container {
+  position: relative;
+}
+
+.bubble-container.active .tooltip {
+  display: block;
+}
+
+/* Button styles */
+.bubble-btn {
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tooltip styles */
+.tooltip {
+  display: none;
+  position: absolute;
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 80vw;
+  width: auto;
+  z-index: 1001;
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  transform: rotate(45deg);
+  z-index: 1000;
+}
+
+/* Iframe styles */
+.content-iframe {
+  width: 100%;
+  border: none;
+  overflow: hidden;
+}

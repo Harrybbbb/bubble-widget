@@ -1,0 +1,50 @@
+{
+  "name": "bubble-widget",
+  "version": "1.0.0",
+  "description": "A customizable floating bubble widget web component",
+  "main": "bubble-widget.js",
+  "module": "bubble-widget.js",
+  "react": "react-wrapper.jsx",
+  "unpkg": "bubble-widget.js",
+  "types": "index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "start": "vite",
+    "start:web": "serve ."
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "vue": "^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "web-component",
+    "custom-element",
+    "bubble",
+    "widget",
+    "tooltip",
+    "chat",
+    "popup",
+    "react",
+    "vue"
+  ],
+  "homepage": "https://github.com/yourusername/bubble-widget#readme",
+  "files": [
+    "bubble-widget.js",
+    "react-wrapper.jsx",
+    "vue-wrapper.js",
+    "README.md",
+    "index.d.ts"
+  ]
+}
