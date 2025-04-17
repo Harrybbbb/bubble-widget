@@ -27,16 +27,6 @@ npm install bubble-widget
 </bubble-widget>
 ```
 
-### Import in JavaScript
-
-```js
-// Import the component
-import "bubble-widget";
-
-// Or if you need to access the class definition
-import BubbleWidget from "bubble-widget";
-```
-
 ### React Usage
 
 ```jsx
