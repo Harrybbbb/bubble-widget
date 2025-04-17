@@ -1,87 +1,8 @@
 class BubbleWidget extends HTMLElement {
-  static POSITIONS = {
-    "top-left": "top: 20px; left: 20px;",
-    "top-right": "top: 20px; right: 20px;",
-    "bottom-left": "bottom: 20px; left: 20px;",
-    "bottom-right": "bottom: 20px; right: 20px;",
-    top: "top: 20px; left: 50%; transform: translateX(-50%);",
-    bottom: "bottom: 20px; left: 50%; transform: translateX(-50%);",
-  };
-
-  static THEMES = {
-    light: {
-      button: "#fff",
-      tooltip: "#fff",
-      text: "#000",
-      shadow: "rgba(0,0,0,0.2)",
-    },
-    dark: {
-      button: "#333",
-      tooltip: "#444",
-      text: "#fff",
-      shadow: "rgba(0,0,0,0.4)",
-    },
-  };
-
-  static get baseStyles() {
-    return `
-      /* Host element styles */
-      :host {
-        position: fixed;
-        z-index: 1000;
-      }
-      
-      /* Container styles */
-      .bubble-container {
-        position: relative;
-      }
-      
-      .bubble-container.active .tooltip {
-        display: block;
-      }
-      
-      /* Button styles */
-      .bubble-btn {
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      /* Tooltip styles */
-      .tooltip {
-        display: none;
-        position: absolute;
-        border-radius: 24px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        max-width: 80vw;
-        width: auto;
-        z-index: 1001;
-      }
-      
-      .tooltip::after {
-        content: "";
-        position: absolute;
-        width: 18px;
-        height: 18px;
-        transform: rotate(45deg);
-        z-index: 1000;
-      }
-      
-      /* Iframe styles */
-      .content-iframe {
-        width: 100%;
-        border: none;
-        overflow: hidden;
-      }
-    `;
-  }
-
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    this.isOpen = false;
   }
 
   static get observedAttributes() {
@@ -106,282 +27,181 @@ class BubbleWidget extends HTMLElement {
   }
 
   connectedCallback() {
-    this.loadStylesheet();
-    this.initializeProperties();
     this.render();
-    this.applyDynamicStyles();
     this.setupEventListeners();
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue) {
-      this.initializeProperties();
+  attributeChangedCallback() {
+    if (this.shadowRoot.querySelector(".bubble-container")) {
       this.render();
-      this.applyDynamicStyles();
     }
   }
 
   disconnectedCallback() {
-    this.cleanupEventListeners();
-  }
-
-  loadStylesheet() {
-    const styleElement = document.createElement("style");
-    styleElement.textContent = BubbleWidget.baseStyles;
-    this.shadowRoot.appendChild(styleElement);
-  }
-
-  initializeProperties() {
-    this.position = this.validatePosition(this.getAttribute("position"));
-    this.theme = this.validateTheme(this.getAttribute("theme"));
-    this.icon = this.getAttribute("icon") || "";
-
-    this.buttonSize = this.getAttribute("button-size") || "50px";
-    this.buttonRadius = this.getAttribute("button-radius") || "50%";
-    this.tooltipWidth = this.getAttribute("tooltip-width") || "200px";
-    this.spacing = this.getAttribute("spacing") || "20px";
-
-    this.customColors = {
-      button: this.getAttribute("button-color"),
-      tooltip: this.getAttribute("tooltip-color"),
-      text: this.getAttribute("text-color"),
-      shadow: this.getAttribute("shadow-color"),
-    };
-
-    this.animation = this.getAttribute("animation") || "scale";
-
-    this.src = this.getAttribute("src") || "";
-    this.iframeHeight = this.getAttribute("iframe-height") || "300px";
-    this.allow = this.getAttribute("allow") || "";
-    this.sandbox =
-      this.getAttribute("sandbox") ||
-      "allow-scripts allow-same-origin allow-forms";
-  }
-
-  validatePosition(position) {
-    return BubbleWidget.POSITIONS.hasOwnProperty(position)
-      ? position
-      : "bottom-right";
-  }
-
-  validateTheme(theme) {
-    return BubbleWidget.THEMES.hasOwnProperty(theme) ? theme : "light";
-  }
-
-  getThemeColors() {
-    const baseTheme = BubbleWidget.THEMES[this.theme];
-    return {
-      button: this.customColors.button || baseTheme.button,
-      tooltip: this.customColors.tooltip || baseTheme.tooltip,
-      text: this.customColors.text || baseTheme.text,
-      shadow: this.customColors.shadow || baseTheme.shadow,
-    };
+    window.removeEventListener("resize", this._adjustTooltipPosition);
+    document.removeEventListener("click", this._handleOutsideClick);
   }
 
   render() {
-    if (!this.shadowRoot.querySelector(".bubble-container")) {
-      const template = document.createElement("div");
-      template.innerHTML = `
-        <div class="bubble-container">
-          <button class="bubble-btn" aria-label="Toggle widget">
-            <slot name="icon">${this.icon}</slot>
-          </button>
-          <div class="tooltip">
-            ${this.renderContent()}
-          </div>
+    const position = this.getAttribute("position") || "bottom-right";
+    const theme = this.getAttribute("theme") || "light";
+    const icon = this.getAttribute("icon") || "";
+    const buttonSize = this.getAttribute("button-size") || "50px";
+    const buttonRadius = this.getAttribute("button-radius") || "50%";
+    const tooltipWidth = this.getAttribute("tooltip-width") || "200px";
+    const spacing = this.getAttribute("spacing") || "20px";
+    const buttonColor =
+      this.getAttribute("button-color") || (theme === "dark" ? "#333" : "#fff");
+    const tooltipColor =
+      this.getAttribute("tooltip-color") ||
+      (theme === "dark" ? "#444" : "#fff");
+    const textColor =
+      this.getAttribute("text-color") || (theme === "dark" ? "#fff" : "#000");
+    const shadowColor =
+      this.getAttribute("shadow-color") ||
+      (theme === "dark" ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0.2)");
+    const animation = this.getAttribute("animation") || "scale";
+    const src = this.getAttribute("src") || "";
+    const iframeHeight = this.getAttribute("iframe-height") || "300px";
+    const allow = this.getAttribute("allow") || "";
+    const sandbox =
+      this.getAttribute("sandbox") ||
+      "allow-scripts allow-same-origin allow-forms";
+
+    const positions = {
+      "top-left": "top: 20px; left: 20px;",
+      "top-right": "top: 20px; right: 20px;",
+      "bottom-left": "bottom: 20px; left: 20px;",
+      "bottom-right": "bottom: 20px; right: 20px;",
+      top: "top: 20px; left: 50%; transform: translateX(-50%);",
+      bottom: "bottom: 20px; left: 50%; transform: translateX(-50%);",
+    };
+
+    const getTooltipPosition = () => {
+      if (position === "bottom")
+        return "bottom: calc(100% + 20px); left: 50%; transform: translateX(-50%);";
+      if (position === "top")
+        return "top: calc(100% + 20px); left: 50%; transform: translateX(-50%);";
+      if (position.includes("bottom"))
+        return "bottom: calc(100% + 20px); left: 0;";
+      if (position.includes("top")) return "top: calc(100% + 20px); left: 0;";
+      return position.includes("left")
+        ? "right: calc(100% + 20px); top: 0;"
+        : "left: calc(100% + 20px); top: 0;";
+    };
+
+    const getPointerPosition = () => {
+      if (position === "bottom")
+        return "bottom: -9px; left: 50%; margin-left: -9px;";
+      if (position === "bottom-right") return "bottom: -9px; right: 20px;";
+      if (position === "bottom-left") return "bottom: -9px; left: 20px;";
+      if (position === "top") return "top: -9px; left: 50%; margin-left: -9px;";
+      if (position === "top-right") return "top: -9px; right: 20px;";
+      if (position === "top-left") return "top: -9px; left: 20px;";
+      if (position.includes("left")) return "left: -9px; top: 20px;";
+      return "right: -9px; top: 20px;";
+    };
+
+    const getAnimationStyle = () => {
+      switch (animation) {
+        case "scale":
+          return "transform: scale(1.1);";
+        case "rotate":
+          return "transform: rotate(180deg);";
+        case "bounce":
+          return "transform: translateY(-5px);";
+        case "none":
+          return "transform: none;";
+        default:
+          return "transform: scale(1.1);";
+      }
+    };
+
+    const html = `
+      <style>
+        :host { position: fixed; z-index: 1000; ${
+          positions[position] || positions["bottom-right"]
+        } }
+        .bubble-container { position: relative; }
+        .bubble-container.active .tooltip { display: block; }
+        .bubble-btn {
+          width: ${buttonSize}; height: ${buttonSize}; border-radius: ${buttonRadius};
+          background-color: ${buttonColor}; box-shadow: 0 2px 5px ${shadowColor};
+          border: none; cursor: pointer; transition: all 0.3s ease;
+          display: flex; align-items: center; justify-content: center;
+          font-size: calc(${buttonSize} * 0.5);
+        }
+        .bubble-btn:hover { ${getAnimationStyle()} }
+        .tooltip {
+          display: none; position: absolute; border-radius: 24px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 80vw;
+          background-color: ${tooltipColor}; color: ${textColor}; 
+          padding: ${spacing}; width: ${tooltipWidth}; z-index: 1001;
+          ${getTooltipPosition()}
+        }
+        .tooltip::after {
+          content: ""; position: absolute; width: 18px; height: 18px;
+          transform: rotate(45deg); z-index: 1000; background-color: ${tooltipColor};
+          ${getPointerPosition()}
+        }
+        .content-iframe { width: 100%; height: ${iframeHeight}; border: none; overflow: hidden; }
+      </style>
+      <div class="bubble-container">
+        <button class="bubble-btn" aria-label="Toggle widget">
+          <slot name="icon">${icon}</slot>
+        </button>
+        <div class="tooltip">
+          ${
+            src
+              ? `<iframe src="${src}" class="content-iframe" frameborder="0" allow="${allow}" sandbox="${sandbox}" loading="lazy"></iframe>`
+              : `<slot name="content">Default content goes here</slot>`
+          }
         </div>
-      `;
-      this.shadowRoot.appendChild(template.firstElementChild);
-    } else {
-      const iconSlot = this.shadowRoot.querySelector('slot[name="icon"]');
-      if (iconSlot) {
-        iconSlot.innerHTML = this.icon;
-      }
-
-      const tooltip = this.shadowRoot.querySelector(".tooltip");
-      if (tooltip) {
-        tooltip.innerHTML = this.renderContent();
-      }
-    }
-  }
-
-  renderContent() {
-    if (this.src) {
-      return `<iframe 
-        src="${this.src}" 
-        class="content-iframe" 
-        frameborder="0" 
-        allow="${this.allow}" 
-        sandbox="${this.sandbox}"
-        loading="lazy"></iframe>`;
-    }
-
-    return `<slot name="content">Default content goes here</slot>`;
-  }
-
-  applyDynamicStyles() {
-    const themeColors = this.getThemeColors();
-    const styleElement = document.createElement("style");
-
-    styleElement.textContent = `
-      :host {
-        ${BubbleWidget.POSITIONS[this.position]}
-      }
-      
-      .bubble-btn {
-        width: ${this.buttonSize};
-        height: ${this.buttonSize};
-        border-radius: ${this.buttonRadius};
-        background-color: ${themeColors.button};
-        box-shadow: 0 2px 5px ${themeColors.shadow};
-        font-size: calc(${this.buttonSize} * 0.5);
-      }
-      
-      .bubble-btn:hover {
-        ${this.getAnimationStyle()}
-      }
-      
-      .tooltip {
-        background-color: ${themeColors.tooltip};
-        color: ${themeColors.text};
-        padding: ${this.spacing};
-        min-width: ${this.tooltipWidth};
-        ${this.calculateTooltipPosition()}
-      }
-      
-      .tooltip::after {
-        background-color: ${themeColors.tooltip};
-        ${this.calculatePointerPosition()}
-      }
-      
-      .content-iframe {
-        height: ${this.iframeHeight};
-      }
+      </div>
     `;
 
-    const oldStyle = this.shadowRoot.querySelector(
-      "style[data-dynamic='true']"
-    );
-    if (oldStyle) {
-      this.shadowRoot.removeChild(oldStyle);
-    }
-
-    styleElement.setAttribute("data-dynamic", "true");
-    this.shadowRoot.appendChild(styleElement);
-  }
-
-  getAnimationStyle() {
-    switch (this.animation) {
-      case "scale":
-        return "transform: scale(1.1);";
-      case "rotate":
-        return "transform: rotate(180deg);";
-      case "bounce":
-        return "transform: translateY(-5px);";
-      case "none":
-        return "transform: none;";
-      default:
-        return "transform: scale(1.1);";
-    }
-  }
-
-  calculateTooltipPosition() {
-    const positions = {
-      topCentered: `bottom: calc(100% + 20px); left: 50%; transform: translateX(-50%); width: ${this.tooltipWidth};`,
-      bottomCentered: `top: calc(100% + 20px); left: 50%; transform: translateX(-50%); width: ${this.tooltipWidth};`,
-      topCorner: `bottom: calc(100% + 20px); left: 0;`,
-      bottomCorner: `top: calc(100% + 20px); left: 0;`,
-      left: `right: calc(100% + 20px); top: 0;`,
-      right: `left: calc(100% + 20px); top: 0;`,
-    };
-
-    if (this.position === "bottom") {
-      return positions.topCentered;
-    } else if (this.position === "top") {
-      return positions.bottomCentered;
-    } else if (this.position.includes("bottom")) {
-      return positions.topCorner;
-    } else if (this.position.includes("top")) {
-      return positions.bottomCorner;
-    } else {
-      return positions.left;
-    }
-  }
-
-  calculatePointerPosition() {
-    const positions = {
-      bottom: "bottom: -9px; left: 50%; margin-left: -9px;",
-      bottomRight: "bottom: -9px; right: 20px;",
-      bottomLeft: "bottom: -9px; left: 20px;",
-      top: "top: -9px; left: 50%; margin-left: -9px;",
-      topRight: "top: -9px; right: 20px;",
-      topLeft: "top: -9px; left: 20px;",
-      left: "left: -9px; top: 20px;",
-      right: "right: -9px; top: 20px;",
-    };
-
-    if (this.position === "bottom") {
-      return positions.bottom;
-    } else if (this.position === "bottom-right") {
-      return positions.bottomRight;
-    } else if (this.position === "bottom-left") {
-      return positions.bottomLeft;
-    } else if (this.position === "top") {
-      return positions.top;
-    } else if (this.position === "top-right") {
-      return positions.topRight;
-    } else if (this.position === "top-left") {
-      return positions.topLeft;
-    } else if (this.position.includes("left")) {
-      return positions.left;
-    } else {
-      return positions.right;
-    }
+    this.shadowRoot.innerHTML = html;
   }
 
   setupEventListeners() {
     const button = this.shadowRoot.querySelector(".bubble-btn");
     const container = this.shadowRoot.querySelector(".bubble-container");
 
-    const adjustTooltipPosition = () => {
+    this._adjustTooltipPosition = () => {
       const tooltip = this.shadowRoot.querySelector(".tooltip");
       if (!tooltip || !container.classList.contains("active")) return;
 
       const rect = tooltip.getBoundingClientRect();
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-
-      if (rect.right > windowWidth) {
+      if (rect.right > window.innerWidth) {
         tooltip.style.left = "auto";
         tooltip.style.right = "0";
         tooltip.style.transform = "none";
       }
-
       if (rect.left < 0) {
         tooltip.style.left = "0";
         tooltip.style.right = "auto";
         tooltip.style.transform = "none";
       }
-
-      if (rect.bottom > windowHeight) {
+      if (rect.bottom > window.innerHeight) {
         tooltip.style.top = "auto";
         tooltip.style.bottom = "60px";
       }
-
       if (rect.top < 0) {
         tooltip.style.top = "60px";
         tooltip.style.bottom = "auto";
       }
     };
 
+    this._handleOutsideClick = (e) => {
+      if (!this.contains(e.target)) {
+        container.classList.remove("active");
+      }
+    };
+
     button.addEventListener("click", (e) => {
       e.stopPropagation();
       const isActive = container.classList.toggle("active");
-
-      if (isActive) {
-        setTimeout(adjustTooltipPosition, 0);
-      }
-
+      if (isActive) setTimeout(this._adjustTooltipPosition, 0);
       this.dispatchEvent(
         new CustomEvent("bubbleToggle", {
           detail: { isOpen: isActive },
@@ -391,21 +211,8 @@ class BubbleWidget extends HTMLElement {
       );
     });
 
-    window.addEventListener("resize", adjustTooltipPosition);
-
-    document.addEventListener("click", (e) => {
-      if (!this.contains(e.target)) {
-        container.classList.remove("active");
-      }
-    });
-
-    this._adjustTooltipPosition = adjustTooltipPosition;
-  }
-
-  cleanupEventListeners() {
-    if (this._adjustTooltipPosition) {
-      window.removeEventListener("resize", this._adjustTooltipPosition);
-    }
+    window.addEventListener("resize", this._adjustTooltipPosition);
+    document.addEventListener("click", this._handleOutsideClick);
   }
 }
 
