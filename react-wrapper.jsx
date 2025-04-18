@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, forwardRef } from "react";
 import "./bubble-widget.js";
+import { convertPropsToAttributes, handleToggleEvent } from "./utils.js";
 
 const BubbleWidget = forwardRef(
   (
@@ -32,9 +33,7 @@ const BubbleWidget = forwardRef(
       if (!widgetRef.current) return;
 
       const handleToggle = (e) => {
-        if (onToggle) {
-          onToggle(e.detail.isOpen);
-        }
+        handleToggleEvent(e, onToggle);
       };
 
       const element = widgetRef.current;
@@ -56,26 +55,24 @@ const BubbleWidget = forwardRef(
     }, [ref]);
 
     const getAttributes = () => {
-      const attributes = {
+      return convertPropsToAttributes({
         position,
         theme,
         animation,
-        ...(buttonColor && { "button-color": buttonColor }),
-        ...(tooltipColor && { "tooltip-color": tooltipColor }),
-        ...(textColor && { "text-color": textColor }),
-        ...(shadowColor && { "shadow-color": shadowColor }),
-        ...(buttonSize && { "button-size": buttonSize }),
-        ...(buttonRadius && { "button-radius": buttonRadius }),
-        ...(tooltipWidth && { "tooltip-width": tooltipWidth }),
-        ...(spacing && { spacing: spacing }),
-        ...(icon && { icon: icon }),
-        ...(src && { src: src }),
-        ...(iframeHeight && { "iframe-height": iframeHeight }),
-        ...(allow && { allow: allow }),
-        ...(sandbox && { sandbox: sandbox }),
-      };
-
-      return attributes;
+        spacing,
+        icon,
+        src,
+        allow,
+        sandbox,
+        buttonColor,
+        tooltipColor,
+        textColor,
+        shadowColor,
+        buttonSize,
+        buttonRadius,
+        tooltipWidth,
+        iframeHeight,
+      });
     };
 
     return (

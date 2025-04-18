@@ -42,6 +42,58 @@ class BubbleWidget extends HTMLElement {
     document.removeEventListener("click", this._handleOutsideClick);
   }
 
+  // Helper methods for positioning
+  _getContainerPosition(position) {
+    const positions = {
+      "top-left": "top: 20px; left: 20px;",
+      "top-right": "top: 20px; right: 20px;",
+      "bottom-left": "bottom: 20px; left: 20px;",
+      "bottom-right": "bottom: 20px; right: 20px;",
+      top: "top: 20px; left: 50%; transform: translateX(-50%);",
+      bottom: "bottom: 20px; left: 50%; transform: translateX(-50%);",
+    };
+
+    return positions[position] || positions["bottom-right"];
+  }
+
+  _getTooltipPosition(position) {
+    if (position === "bottom")
+      return "bottom: calc(100% + 20px); left: 50%; transform: translateX(-50%);";
+    if (position === "top")
+      return "top: calc(100% + 20px); left: 50%; transform: translateX(-50%);";
+    if (position.includes("bottom"))
+      return "bottom: calc(100% + 20px); left: 0;";
+    if (position.includes("top")) return "top: calc(100% + 20px); left: 0;";
+
+    return position.includes("left")
+      ? "right: calc(100% + 20px); top: 0;"
+      : "left: calc(100% + 20px); top: 0;";
+  }
+
+  _getPointerPosition(position) {
+    if (position === "bottom")
+      return "bottom: -9px; left: 50%; margin-left: -9px;";
+    if (position === "bottom-right") return "bottom: -9px; right: 20px;";
+    if (position === "bottom-left") return "bottom: -9px; left: 20px;";
+    if (position === "top") return "top: -9px; left: 50%; margin-left: -9px;";
+    if (position === "top-right") return "top: -9px; right: 20px;";
+    if (position === "top-left") return "top: -9px; left: 20px;";
+    if (position.includes("left")) return "left: -9px; top: 20px;";
+
+    return "right: -9px; top: 20px;";
+  }
+
+  _getAnimationStyle(animation) {
+    const animations = {
+      scale: "transform: scale(1.1);",
+      rotate: "transform: rotate(180deg);",
+      bounce: "transform: translateY(-5px);",
+      none: "transform: none;",
+    };
+
+    return animations[animation] || animations["scale"];
+  }
+
   render() {
     const position = this.getAttribute("position") || "bottom-right";
     const theme = this.getAttribute("theme") || "light";
@@ -68,60 +120,11 @@ class BubbleWidget extends HTMLElement {
       this.getAttribute("sandbox") ||
       "allow-scripts allow-same-origin allow-forms";
 
-    const positions = {
-      "top-left": "top: 20px; left: 20px;",
-      "top-right": "top: 20px; right: 20px;",
-      "bottom-left": "bottom: 20px; left: 20px;",
-      "bottom-right": "bottom: 20px; right: 20px;",
-      top: "top: 20px; left: 50%; transform: translateX(-50%);",
-      bottom: "bottom: 20px; left: 50%; transform: translateX(-50%);",
-    };
-
-    const getTooltipPosition = () => {
-      if (position === "bottom")
-        return "bottom: calc(100% + 20px); left: 50%; transform: translateX(-50%);";
-      if (position === "top")
-        return "top: calc(100% + 20px); left: 50%; transform: translateX(-50%);";
-      if (position.includes("bottom"))
-        return "bottom: calc(100% + 20px); left: 0;";
-      if (position.includes("top")) return "top: calc(100% + 20px); left: 0;";
-      return position.includes("left")
-        ? "right: calc(100% + 20px); top: 0;"
-        : "left: calc(100% + 20px); top: 0;";
-    };
-
-    const getPointerPosition = () => {
-      if (position === "bottom")
-        return "bottom: -9px; left: 50%; margin-left: -9px;";
-      if (position === "bottom-right") return "bottom: -9px; right: 20px;";
-      if (position === "bottom-left") return "bottom: -9px; left: 20px;";
-      if (position === "top") return "top: -9px; left: 50%; margin-left: -9px;";
-      if (position === "top-right") return "top: -9px; right: 20px;";
-      if (position === "top-left") return "top: -9px; left: 20px;";
-      if (position.includes("left")) return "left: -9px; top: 20px;";
-      return "right: -9px; top: 20px;";
-    };
-
-    const getAnimationStyle = () => {
-      switch (animation) {
-        case "scale":
-          return "transform: scale(1.1);";
-        case "rotate":
-          return "transform: rotate(180deg);";
-        case "bounce":
-          return "transform: translateY(-5px);";
-        case "none":
-          return "transform: none;";
-        default:
-          return "transform: scale(1.1);";
-      }
-    };
-
     const html = `
       <style>
-        :host { position: fixed; z-index: 1000; ${
-          positions[position] || positions["bottom-right"]
-        } }
+        :host { position: fixed; z-index: 1000; ${this._getContainerPosition(
+          position
+        )} }
         .bubble-container { position: relative; }
         .bubble-container.active .tooltip { display: block; }
         .bubble-btn {
@@ -131,18 +134,18 @@ class BubbleWidget extends HTMLElement {
           display: flex; align-items: center; justify-content: center;
           font-size: calc(${buttonSize} * 0.5);
         }
-        .bubble-btn:hover { ${getAnimationStyle()} }
+        .bubble-btn:hover { ${this._getAnimationStyle(animation)} }
         .tooltip {
           display: none; position: absolute; border-radius: 24px;
           box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 80vw;
           background-color: ${tooltipColor}; color: ${textColor}; 
           padding: ${spacing}; width: ${tooltipWidth}; z-index: 1001;
-          ${getTooltipPosition()}
+          ${this._getTooltipPosition(position)}
         }
         .tooltip::after {
           content: ""; position: absolute; width: 18px; height: 18px;
           transform: rotate(45deg); z-index: 1000; background-color: ${tooltipColor};
-          ${getPointerPosition()}
+          ${this._getPointerPosition(position)}
         }
         .content-iframe { width: 100%; height: ${iframeHeight}; border: none; overflow: hidden; }
       </style>
