@@ -1,72 +1,30 @@
 /**
- * Utility functions for BubbleWidget wrappers
+ * Handles the bubble toggle event for wrapper components
+ * @param {CustomEvent} event - The bubble toggle event
+ * @param {Function} callback - The callback to be called with isOpen status
  */
+export const handleToggleEvent = (event, callback) => {
+  if (callback && typeof callback === "function") {
+    const isOpen = event.detail.isOpen;
+    callback(isOpen);
+  }
+};
 
 /**
- * Converts camelCase props to kebab-case attributes
- * @param {Object} props - The props object with camelCase keys
- * @return {Object} Attributes object with kebab-case keys
+ * Converts React-style camelCase props to HTML-style kebab-case attributes
+ * @param {Object} props - Object containing component props
+ * @returns {Object} - Object with kebab-case attributes
  */
-export function convertPropsToAttributes(props) {
+export const convertPropsToAttributes = (props) => {
   const result = {};
 
-  const directProps = [
-    "position",
-    "theme",
-    "animation",
-    "spacing",
-    "icon",
-    "src",
-    "allow",
-    "sandbox",
-  ];
-  directProps.forEach((prop) => {
-    if (props[prop] !== undefined) {
-      result[prop] = props[prop];
-    }
-  });
+  Object.entries(props).forEach(([key, value]) => {
+    if (value === undefined) return;
 
-  const kebabCaseMap = {
-    buttonColor: "button-color",
-    tooltipColor: "tooltip-color",
-    textColor: "text-color",
-    shadowColor: "shadow-color",
-    buttonSize: "button-size",
-    buttonRadius: "button-radius",
-    tooltipWidth: "tooltip-width",
-    iframeHeight: "iframe-height",
-  };
-
-  Object.entries(kebabCaseMap).forEach(([camelProp, kebabProp]) => {
-    if (props[camelProp] !== undefined) {
-      result[kebabProp] = props[camelProp];
-    }
+    // Convert camelCase to kebab-case
+    const kebabKey = key.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+    result[kebabKey] = value;
   });
 
   return result;
-}
-
-/**
- * Handles the toggle event from the widget
- * @param {Event} event - The original event
- * @param {Function} callback - The callback to call with the isOpen state
- */
-export function handleToggleEvent(event, callback) {
-  if (callback && typeof callback === "function") {
-    callback(event.detail.isOpen);
-  }
-}
-
-/**
- * Default theme properties based on theme type
- * @param {string} theme - The theme name ('light' or 'dark')
- * @return {Object} Theme properties
- */
-export function getDefaultThemeProps(theme = "light") {
-  return {
-    buttonColor: theme === "dark" ? "#333" : "#fff",
-    tooltipColor: theme === "dark" ? "#444" : "#fff",
-    textColor: theme === "dark" ? "#fff" : "#000",
-    shadowColor: theme === "dark" ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0.2)",
-  };
-}
+};

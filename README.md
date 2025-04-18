@@ -2,7 +2,7 @@
 
 A lightweight, customizable bubble widget component for web applications.
 
-![Bubble Widget](https://i.ibb.co/N6dQ764V/Screenshot-2025-04-18-at-12-12-01-AM.png)
+![Bubble Widget](https://i.ibb.co/Wvdd2Fzc/Screenshot-2025-04-18-at-11-50-41-PM.png)
 
 ## Installation
 
@@ -19,7 +19,8 @@ npm install bubble-widget
 <script src="https://unpkg.com/bubble-widget"></script>
 
 <!-- Use the component -->
-<bubble-widget position="bottom-right" theme="light" icon="💬">
+<bubble-widget position="bottom-right" theme="light">
+  <span slot="icon">💬</span>
   <div slot="content">
     <h3>Hello, World!</h3>
     <p>This is a customizable bubble widget.</p>
@@ -38,7 +39,9 @@ function App() {
     <BubbleWidget
       position="bottom-right"
       theme="light"
-      icon="💬"
+      buttonColor="#6c5ce7"
+      tooltipWidth="280px"
+      iconContent="💬"
       onToggle={(isOpen) => console.log("Widget is open:", isOpen)}
     >
       <h3>Hello, World!</h3>
@@ -55,9 +58,11 @@ function App() {
   <BubbleWidget
     position="bottom-right"
     theme="light"
-    icon="💬"
+    button-color="#6c5ce7"
+    tooltip-width="280px"
     @toggle="handleToggle"
   >
+    <template #icon>💬</template>
     <h3>Hello, World!</h3>
     <p>This is a customizable bubble widget in Vue.</p>
   </BubbleWidget>
@@ -112,10 +117,43 @@ document
   });
 ```
 
+In React:
+
+```jsx
+<BubbleWidget onToggle={(isOpen) => console.log("Bubble is open:", isOpen)} />
+```
+
+In Vue:
+
+```vue
+<BubbleWidget @toggle="(isOpen) => console.log('Bubble is open:', isOpen)" />
+```
+
 ## Slots
 
 - `icon`: Custom content for the button (overrides the `icon` attribute)
 - `content`: Content to display in the tooltip
+
+### Slots in React
+
+In React, you can use the `iconContent` prop for the icon slot and the children for the content slot:
+
+```jsx
+<BubbleWidget iconContent={<span>💬</span>}>
+  <div>Content goes here</div>
+</BubbleWidget>
+```
+
+### Slots in Vue
+
+In Vue, you can use named slots:
+
+```vue
+<BubbleWidget>
+  <template #icon>💬</template>
+  <div>Content goes here</div>
+</BubbleWidget>
+```
 
 ## License
 

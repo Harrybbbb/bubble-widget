@@ -74,18 +74,28 @@ export default {
   },
 
   render() {
-    return this.$slots.default ? this.$slots.default() : null;
-  },
+    const widget = document.createElement("bubble-widget");
 
-  template: `
-    <bubble-widget
-      v-bind="widgetProps"
-    >
-      <template v-if="$slots.default">
-        <div slot="content">
-          <slot></slot>
-        </div>
-      </template>
-    </bubble-widget>
-  `,
+    Object.entries(this.widgetProps).forEach(([key, value]) => {
+      if (value !== undefined) {
+        widget.setAttribute(key, value);
+      }
+    });
+
+    if (this.$slots.icon) {
+      const iconSlot = document.createElement("div");
+      iconSlot.setAttribute("slot", "icon");
+      iconSlot.appendChild(this.$slots.icon());
+      widget.appendChild(iconSlot);
+    }
+
+    if (this.$slots.default) {
+      const contentSlot = document.createElement("div");
+      contentSlot.setAttribute("slot", "content");
+      contentSlot.appendChild(this.$slots.default());
+      widget.appendChild(contentSlot);
+    }
+
+    return widget;
+  },
 };

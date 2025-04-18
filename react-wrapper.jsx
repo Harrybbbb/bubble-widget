@@ -23,6 +23,7 @@ const BubbleWidget = forwardRef(
       animation = "scale",
       onToggle,
       children,
+      iconContent,
       ...otherProps
     },
     ref
@@ -77,6 +78,7 @@ const BubbleWidget = forwardRef(
 
     return (
       <bubble-widget ref={widgetRef} {...getAttributes()} {...otherProps}>
+        {iconContent && <div slot="icon">{iconContent}</div>}
         {children && <div slot="content">{children}</div>}
       </bubble-widget>
     );
